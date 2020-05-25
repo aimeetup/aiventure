@@ -1,5 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const MONGODB_URI =
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`;
+
 
 const feedRoutes = require('./routes/feed');
 
@@ -17,4 +22,11 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-app.listen(8080);
+mongoose
+    .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(result => {
+        app.listen(process.env.PORT || 8080);
+    })
+    .catch(err => {
+        console.log(err);
+    });
