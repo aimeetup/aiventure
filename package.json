@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/aimeetup/aiventure/issues"
   },
-  "homepage": "https://github.com/aimeetup/aiventure#readme"
+  "homepage": "https://github.com/aimeetup/aiventure#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
