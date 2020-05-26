@@ -48,3 +48,23 @@ exports.createPost = (req, res, next) => {
         next(err);  // throw will not work in async => use next(err) for Err Express Middleware
     });
 };
+
+exports.getPost = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {    // if undefined / if not true-ish value
+                const error = new Error('Could not find post.');
+                error.statusCode = 404;
+                throw error; // if use throw in then block => next catch will be reached / with next
+            }
+            res.status(200).json({ message: 'Post fetched', post: post });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }   // To Refactor: ErrProc(err, 500, msg?)
+            next(err);  // throw will not work in async => use next(err) for Err Express Middleware
+        });
+
+};
