@@ -25,6 +25,13 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
+app.use((error, req, res, next) => {    // used when an error is forwarded with next(err)
+    console.log(error);
+    const status = error.statusCode || 500; // defaults to 500 = server error
+    const message = error.message;
+    res.status(status).json({ message: message });
+});
+
 mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
