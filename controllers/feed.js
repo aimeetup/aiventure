@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
@@ -71,5 +74,54 @@ exports.getPost = (req, res, next) => {
             }
             next(err);  // throw will not work in async => use next(err) for Err Express Middleware
         });
-
 };
+
+exports.updatePost = (req, res, next) => {
+    const postId = req.params.postId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.');
+        error.statusCode = 422;
+        throw error;    // will exit function execution and try to reach  the next Err handling middleware in the Express App
+    }
+    const title = req.body.title;
+    const content = req.body.content;
+    let imageUrl = req.body.image; // in case post image is not changed, image sent by Frontend
+    if (req.file) {
+        imageUrl = req.file.path; // if a new file / image is provided
+    }
+    if (!imageUrl) {
+        const error = new Error('No file picked.');
+        error.statuscode = 422; // validation error
+        throw error;
+    }
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not find post.');
+                error.statusCode = 404;
+                throw error; // if use throw in then block => next catch will be reached
+            }   // past this point we found the post in the db to update
+            if (imageUrl !== post.imageUrl) { // new image file was uploaded
+                clearImage(post.imageUrl); // delete the old image on the server !!
+            }
+            post.title = title;
+            post.imageUrl = imageUrl;
+            post.content = content;
+            return post.save(); // overwrite the old post in the db but keeping the old id
+        })
+        .then(result => {
+            res.status(200).json({ message: 'Post updated', post: result })
+        })
+        .catch(err => {
+            if (!err.statusCode) {  // To Refactor: ErrProc(err, 500, msg?)
+                err.statusCode = 500;
+            }
+            next(err);  // throw will not work in async => use next(err) for Err Express Middleware
+        });
+};
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '../', filePath);
+    fs.unlink(filePath, err => console.log(err));    // delete the file / image
+}; 
