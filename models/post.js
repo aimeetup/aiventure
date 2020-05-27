@@ -18,6 +18,10 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    repoUrl: {
+        type: String,
+        required: false
     }
 }, { timestamps: true });
 
