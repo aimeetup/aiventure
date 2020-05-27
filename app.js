@@ -46,6 +46,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {    // used when an error is forwarded with next(err)
     console.log(error);
