@@ -21,6 +21,13 @@ const userSchema = new Schema({
     posts: [{
         type: Schema.Types.ObjectId,
         ref: 'Post'
+    }],
+    interests: [{
+        type: String
+    }],
+    network: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }]
 });
 
