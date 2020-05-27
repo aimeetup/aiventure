@@ -6,14 +6,28 @@ const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 
 exports.getPosts = (req, res, next) => {
+    const currentPage = req.query.page || 1; // default page = 1 if req.query.page = undefined
+    const perPage = 2;
+    let totalItems; // total posts in db
     Post.find()
+        .countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
+        })
         .then(posts => {
             res
                 .status(200)
-                .json({ message: 'Fetched posts successfully.', posts: posts })
+                .json({
+                    message: 'Fetched posts successfully.',
+                    posts: posts,
+                    totalItems: totalItems
+                })
         })
-        .catch(err => { // To Refactor: ErrProc(err, 500, msg?)
-            if (!err.statusCode) {
+        .catch(err => {
+            if (!err.statusCode) { // To Refactor: ErrProcessor(err, status, msg?) + 1k Market Messages?
                 err.statusCode = 500;
             }
             next(err);
