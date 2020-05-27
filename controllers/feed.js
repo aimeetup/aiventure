@@ -125,6 +125,11 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error; // if use throw in then block => next catch will be reached
             }   // past this point we found the post in the db to update
+            if (post.creator.toString() !== req.userId) {
+                const error = new Error('Not authorized');
+                error.statusCode = 403; // Not authorized
+                throw error;
+            }
             if (imageUrl !== post.imageUrl) { // new image file was uploaded
                 clearImage(post.imageUrl); // delete the old image on the server !!
             }
