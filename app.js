@@ -52,7 +52,8 @@ app.use((error, req, res, next) => {    // used when an error is forwarded with 
     console.log(error);
     const status = error.statusCode || 500; // defaults to 500 = server error
     const message = error.message;
-    res.status(status).json({ message: message });
+    const data = error.data;    // keep original errors and pass them to Frontend to address/process
+    res.status(status).json({ message: message, data: data });
 });
 
 mongoose
