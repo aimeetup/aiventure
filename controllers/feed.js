@@ -158,6 +158,11 @@ exports.deletePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error; // if use throw in then block => next catch will be reached
             }
+            if (post.creator.toString() !== req.userId) {
+                const error = new Error('Not authorized');
+                error.statusCode = 403; // Not authorized
+                throw error;
+            }
             // Check logged in user
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId);
