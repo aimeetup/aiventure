@@ -68,23 +68,22 @@ exports.createPost = async (req, res, next) => {
     }
 };
 
-exports.getPost = (req, res, next) => {
+exports.getPost = async (req, res, next) => {
     const postId = req.params.postId;
-    Post.findById(postId)
-        .then(post => {
-            if (!post) {    // if undefined / if not true-ish value
-                const error = new Error('Could not find post.');
-                error.statusCode = 404;
-                throw error; // if use throw in then block => next catch will be reached / with next
-            }
-            res.status(200).json({ message: 'Post fetched', post: post });
-        })
-        .catch(err => {
-            if (!err.statusCode) {  // To Refactor: ErrProc(err, 500, msg?)
-                err.statusCode = 500;
-            }
-            next(err);  // throw will not work in async => use next(err) for Err Express Middleware
-        });
+    const post = await Post.findById(postId)
+    try {
+        if (!post) {    // if undefined / if not true-ish value
+            const error = new Error('Could not find post.');
+            error.statusCode = 404;
+            throw error; // if use throw in then block => next catch will be reached / with next
+        }
+        res.status(200).json({ message: 'Post fetched', post: post });
+    } catch (err) {
+        if (!err.statusCode) {  // To Refactor to errProc/react/aiProcessor(err, 500, msg?) 
+            err.statusCode = 500;  // aiProcessor codes 1000-9000 for the 8 market stages
+        }
+        next(err);
+    }
 };
 
 exports.updatePost = (req, res, next) => {
