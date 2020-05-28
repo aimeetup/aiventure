@@ -6,33 +6,27 @@ const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 const User = require('../models/user');
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1; // default page = 1 if req.query.page = undefined
     const perPage = 2;
-    let totalItems; // total posts in db
-    Post.find()
-        .countDocuments()
-        .then(count => {
-            totalItems = count;
-            return Post.find()
-                .skip((currentPage - 1) * perPage)
-                .limit(perPage);
-        })
-        .then(posts => {
-            res
-                .status(200)
-                .json({
-                    message: 'Fetched posts successfully.',
-                    posts: posts,
-                    totalItems: totalItems
-                })
-        })
-        .catch(err => {
-            if (!err.statusCode) { // To Refactor: ErrProcessor(err, status, msg?) + 1k Market Messages?
-                err.statusCode = 500;
-            }
-            next(err);
-        });
+    try {
+        const totalItems = await Post.find().countDocuments();   // totalItems = total posts in db
+        const posts = await Post.find()
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
+        res
+            .status(200)
+            .json({
+                message: 'Fetched posts successfully.',
+                posts: posts,
+                totalItems: totalItems
+            })
+    } catch (err) {
+        if (!err.statusCode) { // To Refactor: ErrProcessor(err, status, msg?) + 1k Market Messages?
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 
 exports.createPost = (req, res, next) => {
