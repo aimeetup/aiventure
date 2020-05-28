@@ -59,7 +59,11 @@ app.use((error, req, res, next) => {    // used when an error is forwarded with 
 mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
-        app.listen(process.env.PORT || 8080);
+        const server = app.listen(process.env.PORT || 8080);    // the HTTP server
+        const io = require('socket.io')(server);
+        io.on('connection', socket => {     // function to exec for any new client that connects to server
+            console.log('Client connected');
+        });
     })
     .catch(err => {
         console.log(err);
