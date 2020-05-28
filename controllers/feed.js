@@ -29,7 +29,7 @@ exports.getPosts = async (req, res, next) => {
     }
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
@@ -49,29 +49,23 @@ exports.createPost = (req, res, next) => {
         title: title,
         content: content,
         imageUrl: imageUrl,
-        creator: req.userId
     });
-    post.save().then(result => {
-        return User.findById(req.userId);   // find the currently loggedin user
-    })
-        .then(user => {
-            creator = user;
-            user.posts.push(post);  // add the new post to the list of posts of the user
-            return user.save();
-        })
-        .then(result => {
-            res.status(201).json({  // 201 = Success: Resource was created
-                message: 'Post created successfully!',
-                post: post,
-                creator: { _id: creator._id, name: creator.name }
-            });
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);  // throw will not work in async => use next(err) for Err Express Middleware
+    try {
+        await post.save();
+        const user = await User.findById(req.userId);   // find the currently loggedin user
+        user.posts.push(post);  // add the new post to the list of posts of the user
+        await user.save();
+        res.status(201).json({  // 201 = Success: Resource was created
+            message: 'Post created successfully!',
+            post: post,
+            creator: { _id: user._id, name: user.name }
         });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);  // throw will not work in async => use next(err) for Err Express Middleware
+    }
 };
 
 exports.getPost = (req, res, next) => {
