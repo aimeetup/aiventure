@@ -86,7 +86,7 @@ exports.getPost = async (req, res, next) => {
     }
 };
 
-exports.updatePost = (req, res, next) => {
+exports.updatePost = async (req, res, next) => {
     const postId = req.params.postId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -105,35 +105,32 @@ exports.updatePost = (req, res, next) => {
         error.statuscode = 422; // validation error
         throw error;
     }
-    Post.findById(postId)
-        .then(post => {
-            if (!post) {
-                const error = new Error('Could not find post.');
-                error.statusCode = 404;
-                throw error; // if use throw in then block => next catch will be reached
-            }   // past this point we found the post in the db to update
-            if (post.creator.toString() !== req.userId) {
-                const error = new Error('Not authorized');
-                error.statusCode = 403; // Not authorized
-                throw error;
-            }
-            if (imageUrl !== post.imageUrl) { // new image file was uploaded
-                clearImage(post.imageUrl); // delete the old image on the server !!
-            }
-            post.title = title;
-            post.imageUrl = imageUrl;
-            post.content = content;
-            return post.save(); // overwrite the old post in the db but keeping the old id
-        })
-        .then(result => {
-            res.status(200).json({ message: 'Post updated', post: result })
-        })
-        .catch(err => {
-            if (!err.statusCode) {  // To Refactor: ErrProc(err, 500, msg?)
-                err.statusCode = 500;
-            }
-            next(err);  // throw will not work in async => use next(err) for Err Express Middleware
-        });
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            const error = new Error('Could not find post.');
+            error.statusCode = 404;
+            throw error; // if use throw in then block => next catch will be reached
+        }   // past this point we found the post in the db to update
+        if (post.creator.toString() !== req.userId) {
+            const error = new Error('Not authorized');
+            error.statusCode = 403; // Not authorized
+            throw error;
+        }
+        if (imageUrl !== post.imageUrl) { // new image file was uploaded
+            clearImage(post.imageUrl); // delete the old image on the server !!
+        }
+        post.title = title;
+        post.imageUrl = imageUrl;
+        post.content = content;
+        const result = await post.save(); // overwrite the old post in the db but keeping the old id
+        res.status(200).json({ message: 'Post updated', post: result })
+    } catch (err) {
+        if (!err.statusCode) {  // To Refactor: ErrProc(err, 500, msg?)
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 
 exports.deletePost = (req, res, next) => {
