@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
 const jwt = require('jsonwebtoken');
+const sinon = require('sinon');
 
 const authMiddleware = require('../middleware/is-auth');
 
@@ -30,11 +31,11 @@ describe('Auth middleware', function () {
                 return 'Bearer dabldbljrljznrvlr';
             }
         };
-        jwt.verify = function () { // overwriting the verify method
-            return { userId: 'abc' }
-        };
+        sinon.stub(jwt, 'verify');  // sinon provides a blank verufy stub, and register its calls
+        jwt.verify.returns({ userId: 'abc' }); // configure verify return
         authMiddleware(req, {}, () => { });     // middleware will run with the overwritten verify
         expect(req).to.have.property('userId');
+        jwt.verify.restore();
     });
 
     it('should throw an error if the token cannot be verified', function () {
