@@ -35,6 +35,8 @@ describe('Auth middleware', function () {
         jwt.verify.returns({ userId: 'abc' }); // configure verify return
         authMiddleware(req, {}, () => { });     // middleware will run with the overwritten verify
         expect(req).to.have.property('userId');
+        expect(req).to.have.property('userId', 'abc');  // to test also the value / 2nd arg
+        expect(jwt.verify.called).to.be.true;   // test to ensure the verify method was called
         jwt.verify.restore();
     });
 
