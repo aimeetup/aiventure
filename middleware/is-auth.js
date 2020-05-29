@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
         error.statusCode = 401;
         throw error;
     }
-    const token = authHeader.split(' ')[1];   // Get the 2nd value after Bearer
+    const token = authHeader.split(' ')[1];   // Get the 2nd value (token): 'Bearer token'
     let decodedToken;
     try {
         decodedToken = jwt.verify(token, `${process.env.JWT_SECRET}`);
