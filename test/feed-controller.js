@@ -47,7 +47,7 @@ describe('Feed Controller', function () {
             file: {
                 path: 'abc'
             },
-            userId: 'xyz'
+            userId: '5c0f66b979af55031b34728a'
         };
 
         AuthController.login(req, {}, () => { }).then(result => {

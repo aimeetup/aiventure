@@ -57,7 +57,7 @@ exports.createPost = async (req, res, next) => {
         await post.save();
         const user = await User.findById(req.userId);   // find the currently loggedin user
         user.posts.push(post);  // add the new post to the list of posts of the user
-        await user.save();
+        const savedUser = await user.save();
         io.getIO().emit('posts', {  // posts = event name = channel; can send any data struct needed not just action/cmd + param
             action: 'create',
             post: { ...post._doc, creator: { _id: req.userId, name: user.name } }
@@ -67,6 +67,7 @@ exports.createPost = async (req, res, next) => {
             post: post,
             creator: { _id: user._id, name: user.name }
         });
+        return savedUser;
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
