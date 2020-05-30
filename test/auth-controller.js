@@ -7,10 +7,14 @@ const AuthController = require('../controllers/auth');
 
 // const MONGODB_URI =
 //     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_TEST_DATABASE}`;
-const MONGODB_URI =
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/test-aipages`;
+
 
 describe('Auth Controller', function () {
+
+    // beforeEach(function() { // setup Hook for scripts needed before each test })
+
+    // afterEach(function() { // cleanup Hook for scripts needed before each test })
+
     before(function (done) {    // before hook - initialization script - executes once before all test cases
         mongoose
             .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
