@@ -9,7 +9,6 @@ const FeedController = require('../controllers/feed');
 // const MONGODB_URI =
 //     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_TEST_DATABASE}`;
 
-
 describe('Feed Controller', function () {
 
     before(function (done) {    // before hook - initialization script - executes once before all test cases
@@ -49,11 +48,11 @@ describe('Feed Controller', function () {
             },
             userId: '5c0f66b979af55031b34728a'
         };
+        const res = { status: function () { }, json: function () { } }; // dummy response structure - that just need to be available for test
 
-        AuthController.login(req, {}, () => { }).then(result => {
-            // console.log(result);
-            expect(result).to.be.an('error');   // Chai able to detect the data type including error
-            expect(result).to.have.property('statusCode', 500);
+        FeedController.createPost(req, res, () => { }).then((savedUser) => {
+            expect(savedUser).to.have.property('posts');
+            expect(savedUser.posts).to.have.length(1);
             done();
         });
     });
