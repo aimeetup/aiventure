@@ -2,12 +2,14 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const mongoose = require('mongoose');
 
+const io = require('../socket');
 const User = require('../models/user');
-const Post = require('../models/post');
+// const Post = require('../models/post');
 const FeedController = require('../controllers/feed');
 
 // const MONGODB_URI =
 //     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_TEST_DATABASE}`;
+
 
 describe('Feed Controller', function () {
 
@@ -27,17 +29,14 @@ describe('Feed Controller', function () {
             })
             .then(() => {
                 done();
-            })
-    })
+            });
+    });
 
-    beforeEach(function () { })  // setup Hook for scripts needed before each test
+    // beforeEach(function () { });  // setup Hook for scripts needed before each test
 
-    afterEach(function () { })    // cleanup Hook for scripts needed before each test
+    // afterEach(function () { });    // cleanup Hook for scripts needed before each test
 
     it('should add a created post to the posts of the creator', function (done) {
-        // sinon.stub(User, 'findOne');    // blank stub / mocking(overwriting) the findOne db method for User model
-        // User.findOne.throws();
-
         const req = {
             body: {
                 title: 'Test Post',
@@ -48,11 +47,24 @@ describe('Feed Controller', function () {
             },
             userId: '5c0f66b979af55031b34728a'
         };
-        const res = { status: function () { }, json: function () { } }; // dummy response structure - that just need to be available for test
+        const res = {
+            status: function () {
+                return this;
+            },
+            json: function () { }
+        }; // dummy response structure - that just need to be available for test
 
-        FeedController.createPost(req, res, () => { }).then((savedUser) => {
+        const stubWebSocket = sinon.stub(io, 'getIO').callsFake(() => {
+            return {
+                emit: function () { }
+            }
+        });
+
+        FeedController.createPost(req, res, () => { }).then(savedUser => {
+            // console.log(savedUser);
             expect(savedUser).to.have.property('posts');
             expect(savedUser.posts).to.have.length(1);
+            stubWebSocket.restore();
             done();
         });
     });
