@@ -7,8 +7,8 @@ const User = require('../models/user');
 // const Post = require('../models/post');
 const FeedController = require('../controllers/feed');
 
-// const MONGODB_URI =
-//     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_TEST_DATABASE}`;
+const MONGODB_URI =
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-n7ze3.mongodb.net/${process.env.MONGO_TEST_DATABASE}`;
 
 
 describe('Feed Controller', function () {

@@ -4,7 +4,7 @@
   "description": "ai venture engine",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --timeout 5000",
+    "test": "nodemon --exec mocha --timeout 5000",
     "start": "nodemon app.js"
   },
   "repository": {
