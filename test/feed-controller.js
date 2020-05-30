@@ -12,10 +12,6 @@ const FeedController = require('../controllers/feed');
 
 describe('Feed Controller', function () {
 
-    // beforeEach(function() { // setup Hook for scripts needed before each test })
-
-    // afterEach(function() { // cleanup Hook for scripts needed before each test })
-
     before(function (done) {    // before hook - initialization script - executes once before all test cases
         mongoose
             .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -35,15 +31,23 @@ describe('Feed Controller', function () {
             })
     })
 
-    it('should throw an error with code 500 if accessing the database fails', function (done) {
-        sinon.stub(User, 'findOne');    // blank stub / mocking the findOne db method for User model
-        User.findOne.throws();
+    beforeEach(function () { })  // setup Hook for scripts needed before each test
+
+    afterEach(function () { })    // cleanup Hook for scripts needed before each test
+
+    it('should add a created post to the posts of the creator', function (done) {
+        // sinon.stub(User, 'findOne');    // blank stub / mocking(overwriting) the findOne db method for User model
+        // User.findOne.throws();
 
         const req = {
             body: {
-                email: 'test@test.com',
-                password: 'tester'
-            }
+                title: 'Test Post',
+                content: 'A Test Post'
+            },
+            file: {
+                path: 'abc'
+            },
+            userId: 'xyz'
         };
 
         AuthController.login(req, {}, () => { }).then(result => {
@@ -52,32 +56,7 @@ describe('Feed Controller', function () {
             expect(result).to.have.property('statusCode', 500);
             done();
         });
-
-        User.findOne.restore();
     });
-
-    it('should send a response with a valid user status for an existing user', function (done) {
-
-
-        const req = { userId: '5c0f66b979af55031b34728a' };
-        const res = {
-            statusCode: 500,
-            userStatus: null,
-            status: function (code) {
-                this.statusCode = code;
-                return this;
-            },
-            json: function (data) {
-                this.userStatus = data.status
-            }
-        };
-        AuthController.getUserStatus(req, res, () => { })
-            .then(() => {
-                expect(res.statusCode).to.be.equal(200);
-                expect(res.userStatus).to.be.equal('I am new!');
-                done();
-            })
-    })
 
     after(function (done) {     // after hook - cleanup script
         User.deleteMany({})
